@@ -17,6 +17,7 @@ if BUILD_WITH_TFM
 
 config TFM_SECURE_UART1
 	bool
+	depends on $(dt_nodelabel_has_compat,uarte1,$(DT_COMPAT_NORDIC_NRF_UARTE))
 	select NRF_UARTE1_SECURE
 
 endif # BUILD_WITH_TFM
