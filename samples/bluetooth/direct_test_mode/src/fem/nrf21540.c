@@ -9,6 +9,7 @@
 #include <device.h>
 #include <drivers/gpio.h>
 #include <drivers/spi.h>
+#include <drivers/pinctrl.h>
 #include <pm/device.h>
 #include <soc.h>
 #include <sys/__assert.h>
@@ -507,10 +508,18 @@ static int spim_gain_transfer(uint8_t gain)
 	nrfx_err_t nrfx_err;
 	uint8_t buf[NRF21540_SPI_LENGTH_BYTES];
 	nrfx_spim_config_t spim_config = NRFX_SPIM_DEFAULT_CONFIG(
-					DT_PROP(NRF21540_SPI_BUS, sck_pin),
-					DT_PROP(NRF21540_SPI_BUS, mosi_pin),
-					DT_PROP(NRF21540_SPI_BUS, miso_pin),
-					NRFX_SPIM_PIN_NOT_USED);
+						NRFX_SPIM_PIN_NOT_USED,
+						NRFX_SPIM_PIN_NOT_USED,
+						NRFX_SPIM_PIN_NOT_USED,
+						NRFX_SPIM_PIN_NOT_USED);
+	spim_config.skip_gpio_cfg = true;
+	spim_config.skip_psel_cfg = true;
+
+	ret = pinctrl_apply_state(PINCTRL_DT_DEV_CONFIG_GET(NRF21540_SPI_BUS),
+				  PINCTRL_STATE_DEFAULT);
+	if (ret < 0) {
+		return ret;
+	}
 
 	spim_config.frequency =
 		get_nrf_spim_frequency(nrf21540_cfg.bus.config.frequency);
