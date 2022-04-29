@@ -75,6 +75,7 @@ static nrfx_spim_t spim = NRFX_SPIM_INSTANCE(0);
 
 #define NRF21540_SPI DT_PHANDLE(NRF21540_NODE, spi_if)
 #define NRF21540_SPI_BUS DT_BUS(NRF21540_SPI)
+PINCTRL_DT_DEFINE(NRF21540_SPI_BUS);
 
 #define T_NCS_SCLK 1
 
@@ -515,10 +516,10 @@ static int spim_gain_transfer(uint8_t gain)
 	spim_config.skip_gpio_cfg = true;
 	spim_config.skip_psel_cfg = true;
 
-	ret = pinctrl_apply_state(PINCTRL_DT_DEV_CONFIG_GET(NRF21540_SPI_BUS),
+	err = pinctrl_apply_state(PINCTRL_DT_DEV_CONFIG_GET(NRF21540_SPI_BUS),
 				  PINCTRL_STATE_DEFAULT);
-	if (ret < 0) {
-		return ret;
+	if (err < 0) {
+		return err;
 	}
 
 	spim_config.frequency =
