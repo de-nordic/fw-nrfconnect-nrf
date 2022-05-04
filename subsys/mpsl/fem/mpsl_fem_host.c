@@ -115,12 +115,13 @@ static int fem_nrf21540_gpio_pins_forward(void)
 	soc_secure_gpio_pin_mcu_select(sck_pin, NRF_GPIO_PIN_MCUSEL_NETWORK);
 	soc_secure_gpio_pin_mcu_select(miso_pin, NRF_GPIO_PIN_MCUSEL_NETWORK);
 	soc_secure_gpio_pin_mcu_select(mosi_pin, NRF_GPIO_PIN_MCUSEL_NETWORK);
-#endif
+#endif /* CONFIG_PINCTRL */
 
 	/* configure cs pin */
 	uint8_t cs_pin = DT_SPI_DEV_CS_GPIOS_PIN(MPSL_FEM_SPI_IF);
 	fem_pin_num_correction(&cs_pin, DT_SPI_DEV_CS_GPIOS_LABEL(MPSL_FEM_SPI_IF));
 	soc_secure_gpio_pin_mcu_select(cs_pin, NRF_GPIO_PIN_MCUSEL_NETWORK);
+#endif /* DT_NODE_HAS_STATUS(MPSL_FEM_SPI_IF, okay) */
 
 	return 0;
 }
