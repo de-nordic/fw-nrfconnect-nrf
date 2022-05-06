@@ -13,6 +13,7 @@
 #include <drivers/sensor.h>
 #include <drivers/gpio.h>
 #include <pm/device.h>
+#include <hal/nrf_qdec.h>
 
 #include <app_event_manager.h>
 #include "wheel_event.h"
@@ -36,10 +37,7 @@ enum state {
 	STATE_SUSPENDED
 };
 
-static const uint32_t qdec_pin[] = {
-	DT_PROP(DT_NODELABEL(qdec), a_pin),
-	DT_PROP(DT_NODELABEL(qdec), b_pin)
-};
+static uint32_t qdec_pin[2];
 
 static const struct sensor_trigger qdec_trig = {
 	.type = SENSOR_TRIG_DATA_READY,
@@ -295,6 +293,11 @@ static int init(void)
 		LOG_ERR("Cannot get QDEC device");
 		return -ENXIO;
 	}
+
+	NRF_QDEC_Type const *qdec_regs =
+		(NRF_QDEC_Type const *)DT_REG_ADDR(DT_NODELABEL(qdec));
+	qdec_pin[0] = nrf_qdec_phase_a_pin_get(qdec_regs);
+	qdec_pin[1] = nrf_qdec_phase_b_pin_get(qdec_regs);
 
 	gpio_dev = device_get_binding(DT_LABEL(DT_NODELABEL(gpio0)));
 	if (!gpio_dev) {
