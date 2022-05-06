@@ -79,7 +79,6 @@
 &qdec {
 	status = "okay";
 	enable-pin = <30>;
-	led-pin = <0xFFFFFFFF>;
 	led-pre = <0>;
 	steps = <24>;
 	pinctrl-0 = <&qdec_default>;
