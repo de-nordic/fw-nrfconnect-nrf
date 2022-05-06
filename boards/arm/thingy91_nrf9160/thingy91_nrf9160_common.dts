@@ -123,13 +123,6 @@
 	pinctrl-names = "default", "sleep";
 };
 
-&pwm3 {
-	status = "okay";
-	pinctrl-0 = <&pwm3_default>;
-	pinctrl-1 = <&pwm3_sleep>;
-	pinctrl-names = "default", "sleep";
-};
-
 &i2c2 {
 	compatible = "nordic,nrf-twim";
 	status = "okay";
