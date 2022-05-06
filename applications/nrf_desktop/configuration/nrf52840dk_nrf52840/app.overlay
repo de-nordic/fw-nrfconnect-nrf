@@ -86,9 +86,6 @@
 
 &qspi {
 	status = "okay";
-	pinctrl-0 = <&qspi_default>;
-	pinctrl-1 = <&qspi_sleep>;
-	pinctrl-names = "default", "sleep";
 };
 
 &pinctrl {
@@ -147,14 +144,4 @@
 			low-power-enable;
 		};
 	};
-
-	qspi_default: qspi_default {
-	};
-
-	qspi_sleep: qspi_sleep {
-		group1 {
-			low-power-enable;
-		};
-	};
-
 };
