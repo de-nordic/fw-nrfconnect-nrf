@@ -40,6 +40,7 @@ Trusted Firmware-M (TF-M) is now used in |NCS| as a default solution for running
 Switch from TinyCBOR to zcbor
 *****************************
 
+The TinyCBOR to zcbor migration guide is provided here :ref:`migration_tinycbor_to_zcbor`
 *Required action*:
 
 New logging mechanism
