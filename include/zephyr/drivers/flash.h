@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Nordic Semiconductor ASA
+ * Copyright (c) 2017-2024 Nordic Semiconductor ASA
  * Copyright (c) 2016 Intel Corporation
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -38,6 +38,54 @@ struct flash_pages_layout {
 };
 #endif /* CONFIG_FLASH_PAGE_LAYOUT */
 
+
+/**
+ * Macro should be used with erase requirement characteristic obtained from
+ * device, i.e. boolean value of flash_parameters.flags.erase_requirement.
+ * The macro may be compile-time optimized to return true or false only,
+ * in case when all devices, enabled at compile time, have or lack erase
+ * requirement respectively.
+ *
+ * The macro is provided for user convenience to allow cutting down code,
+ * depending on what devices are enabled at compile time. The macro will:
+ *  - always return true if CONFIG_FLASH_DEVICE_HAS_ERASE_REQUIREMENT is enabled
+ *    by any driver, but CONFIG_FLASH_DEVICE_HAS_NO_ERASE_REQUIREMENT is not;
+ *  - always return false if CONFIG_FLASH_DEVICE_HAS_NO_ERASE_REQUIREMENT is enabled
+ *    by any driver, but CONFIG_FLASH_DEVICE_HAS_ERASE_REQUIREMENT is not.
+ *  - returns value of @p condition in case when both Kconfigs are defined.
+ *
+ * For example in below code
+ *
+ *     if (FLASH_EVAL_ERASE_REQUIREMENT(condition) {
+ *         branch A
+ *         ...
+ *     } else {
+ *         branch B
+ *         ...
+ *     }
+ *
+ * will only have both branches, A and B, compiled in when there is need
+ * to serve devices that do and these that do not require erase.
+ *
+ * @param condition	any boolean condition; usually it will be cached
+ *                      for the purpose of user code, value of erase_requirement
+ *                      flag from flash parameters.
+ *
+ * @returns true if erase is required, false otherwise.
+ */
+#define FLASH_EVAL_ERASE_REQUIREMENT(condition)	\
+	FLASH_EVAL_ERASE_REQUIREMENT__(condition)
+
+#if IS_ENABLED(CONFIG_FLASH_DEVICE_HAS_ERASE_REQUIREMENT) && \
+	!IS_ENABLED(CONFIG_FLASH_DEVICE_HAS_NO_ERASE_REQUIREMENT)
+#define FLASH_EVAL_ERASE_REQUIREMENT__(condition) (true)
+#elif !IS_ENABLED(CONFIG_FLASH_DEVICE_HAS_ERASE_REQUIREMENT) && \
+       IS_ENABLED(CONFIG_FLASH_DEVICE_HAS_NO_ERASE_REQUIREMENT)
+#define FLASH_EVAL_ERASE_REQUIREMENT__(condition) (false)
+#else
+#define FLASH_EVAL_ERASE_REQUIREMENT__(condition) (!!(condition))
+#endif
+
 /**
  * @}
  */
@@ -56,6 +104,9 @@ struct flash_pages_layout {
  */
 struct flash_parameters {
 	const size_t write_block_size;
+	struct {
+		uint32_t erase_requirement		: 1;
+	} flags;
 	uint8_t erase_value; /* Byte value of erased flash */
 };
 
