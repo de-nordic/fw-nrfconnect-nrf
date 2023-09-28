@@ -18,4 +18,4 @@ set(CPUNET_PM_DOMAIN_DYNAMIC_PARTITION remote CACHE INTERNAL "")
 # Add a dependency so that the remote sample will be built and flashed first
 add_dependencies(ipc_service remote)
 # Add dependency so that the remote image is flashed first.
-sysbuild_add_dependencies(FLASH event_manager_proxy remote)
+sysbuild_add_dependencies(FLASH ipc_service remote)
