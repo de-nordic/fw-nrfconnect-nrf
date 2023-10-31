@@ -1,0 +1,22 @@
+sample:
+  description: ZSAI usage sample
+    application
+  name: ZSAI sample
+common:
+  tags: introduction storage zsai
+tests:
+  storage.zai.with_erase:
+    extra_args: |
+        DTC_OVERLAY_FILE=zsai_with_erase.overlay
+        OVERLAY_CONFIG=zsai_simulator.conf
+    platform_allow: qemu_x86 native_posix
+  storage.zsai.without_erase:
+    extra_args: |
+        DTC_OVERLAY_FILE=zsai_without_erase.overlay
+        OVERLAY_CONFIG=zsai_simulator.conf
+    platform_allow: qemu_x86 native_posix
+  storage.zsai.nrf:
+    extra_args: OVERLAY_CONFIG=boards/nrf52840dk_nrf52840.conf
+    platform_allow: nrf52840dk_nrf52840
+    integration_platforms:
+      - nrf52840dk_nrf52840
