@@ -91,7 +91,7 @@ struct bt_mesh_sensor_srv {
 			BT_MESH_SENSOR_OP_CADENCE_STATUS,
 			BT_MESH_SENSOR_MSG_MAXLEN_CADENCE_STATUS))];
 	/** Composition data model pointer. */
-	struct bt_mesh_model *model;
+	const struct bt_mesh_model *model;
 };
 
 /** @brief Publish a sensor value.
