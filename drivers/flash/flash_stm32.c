@@ -41,6 +41,9 @@ static const struct flash_parameters flash_stm32_parameters = {
 #else
 	.erase_value = 0xff,
 #endif
+	.flags = {
+		.erase_requirement = true,
+	},
 };
 
 static int flash_stm32_write_protection(const struct device *dev, bool enable);

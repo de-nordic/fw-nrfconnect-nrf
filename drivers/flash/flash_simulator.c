@@ -162,7 +162,10 @@ static const struct flash_driver_api flash_sim_api;
 
 static const struct flash_parameters flash_sim_parameters = {
 	.write_block_size = FLASH_SIMULATOR_PROG_UNIT,
-	.erase_value = FLASH_SIMULATOR_ERASE_VALUE
+	.erase_value = FLASH_SIMULATOR_ERASE_VALUE,
+	.flags = {
+		.erase_requirement = true,
+	},
 };
 
 static int flash_range_is_valid(const struct device *dev, off_t offset,
