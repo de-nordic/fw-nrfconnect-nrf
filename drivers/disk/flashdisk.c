@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016 Intel Corporation.
- * Copyright (c) 2022-2023 Nordic Semiconductor ASA
+ * Copyright (c) 2022-2024 Nordic Semiconductor ASA
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -32,10 +32,18 @@ struct flashdisk_data {
 	off_t cached_addr;
 	bool cache_valid;
 	bool cache_dirty;
+	bool erase_required;
 };
 
 #define GET_SIZE_TO_BOUNDARY(start, block_size) \
 	(block_size - (start & (block_size - 1)))
+
+/*
+ * The default block size is used for devices not requiring erase.
+ * It defaults to 512 as this is most widely used sector size
+ * on storage devices.
+ */
+#define DEFAULT_BLOCK_SIZE	512
 
 static int disk_flash_access_status(struct disk_info *disk)
 {
@@ -53,14 +61,23 @@ static int flashdisk_init_runtime(struct flashdisk_data *ctx,
 	int rc;
 	struct flash_pages_info page;
 	off_t offset;
+	const struct flash_parameters *params;
 
-	rc = flash_get_page_info_by_offs(ctx->info.dev, ctx->offset, &page);
-	if (rc < 0) {
-		LOG_ERR("Error %d while getting page info", rc);
-		return rc;
+	params = flash_get_parameters(ctx->info.dev);
+	ctx->erase_required = params->flags.erase_required;
+
+	if (FLASH_EVAL_ERASE_REQUIREMENT(ctx->erase_required)) {
+		rc = flash_get_page_info_by_offs(ctx->info.dev, ctx->offset, &page);
+		if (rc < 0) {
+			LOG_ERR("Error %d while getting page info", rc);
+			return rc;
+		}
+
+		ctx->page_size = page.size;
+	} else {
+		ctx->page_size = DEFAULT_BLOCK_SIZE;
 	}
 
-	ctx->page_size = page.size;
 	LOG_INF("Initialize device %s", ctx->info.name);
 	LOG_INF("offset %lx, sector size %zu, page size %zu, volume size %zu",
 		(long)ctx->offset, ctx->sector_size, ctx->page_size, ctx->size);
@@ -71,7 +88,7 @@ static int flashdisk_init_runtime(struct flashdisk_data *ctx,
 		return 0;
 	}
 
-	if (IS_ENABLED(CONFIG_FLASHDISK_VERIFY_PAGE_LAYOUT)) {
+	if (FLASH_EVAL_ERASE_REQUIREMENT(ctx->erase_required)) {
 		if (ctx->offset != page.start_offset) {
 			LOG_ERR("Disk %s does not start at page boundary",
 				ctx->info.name);
@@ -213,8 +230,10 @@ static int flashdisk_cache_commit(struct flashdisk_data *ctx)
 		return 0;
 	}
 
-	if (flash_erase(ctx->info.dev, ctx->cached_addr, ctx->page_size) < 0) {
-		return -EIO;
+	if (FLASH_EVA_ERASE_REQUIREMENT(ctx->erase_required)) {
+		if (flash_erase(ctx->info.dev, ctx->cached_addr, ctx->page_size) < 0) {
+			return -EIO;
+		}
 	}
 
 	/* write data to flash */
