@@ -960,6 +960,11 @@ int nvs_mount(struct nvs_fs *fs)
 		return -EINVAL;
 	}
 
+	if (!fs->flash_parameters->flags.erase_requirement) {
+		LOG_ERR("NVS currently does not work on devices without erse");
+		return -EINVAL;
+	}
+
 	write_block_size = flash_get_write_block_size(fs->flash_device);
 
 	/* check that the write block size is supported */

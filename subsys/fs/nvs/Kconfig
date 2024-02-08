@@ -3,6 +3,11 @@
 # Copyright (c) 2018 Laczen
 # SPDX-License-Identifier: Apache-2.0
 
+# Currently only devices that erase to established state
+# are supported, so if there are only devices that do not
+# require erase NVS would not be useful at all.
+if !FLASH_HAS_ERASE_REQUIREMENT
+
 config NVS
 	bool "Non-volatile Storage"
 	select CRC
@@ -32,3 +37,5 @@ module-str = nvs
 source "subsys/logging/Kconfig.template.log_config"
 
 endif # NVS
+
+endif # !FLASH_HAS_ERASE_REQUIREMENT
