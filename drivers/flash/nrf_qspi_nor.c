@@ -1150,6 +1150,9 @@ qspi_flash_get_parameters(const struct device *dev)
 	static const struct flash_parameters qspi_flash_parameters = {
 		.write_block_size = 4,
 		.erase_value = 0xff,
+		.flags = {
+			.erase_requirement = true,
+		},
 	};
 
 	return &qspi_flash_parameters;
