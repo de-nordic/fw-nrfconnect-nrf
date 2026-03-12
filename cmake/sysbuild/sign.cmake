@@ -14,6 +14,12 @@ function(b0_gen_keys)
   set(SIGNATURE_PUBLIC_KEY_FILE ${GENERATED_PATH}/public.pem)
   set(SIGNATURE_PUBLIC_KEY_FILE ${GENERATED_PATH}/public.pem PARENT_SCOPE)
 
+  if(CONFIG_PARTITION_MANAGER_ENABLED)
+    set(skip_size 0)
+  else()
+    set(skip_size ${CONFIG_SB_IMAGE_BOOT_OFFSET})
+  endif()
+
   if(SB_CONFIG_SECURE_BOOT_SIGNATURE_TYPE_ED25519)
     set(keygen_algorithm --algorithm ed25519)
   else()
@@ -170,6 +176,7 @@ function(b0_sign_image slot cpunet_target)
       ${PYTHON_EXECUTABLE}
       ${ZEPHYR_NRF_MODULE_DIR}/scripts/bootloader/hash.py
       --in ${to_sign} ${hash_cmd_type}
+      --skip ${skip_size}
       > ${hash_file}
       )
   endif()
@@ -186,7 +193,8 @@ function(b0_sign_image slot cpunet_target)
       ${ZEPHYR_NRF_MODULE_DIR}/scripts/bootloader/do_sign.py
       --private-key ${SIGNATURE_PRIVATE_KEY_FILE}
       --in ${hash_file} ${sign_cmd_signature_type}
-      > ${signature_file}
+      --skip ${skip_size}
+      --out ${signature_file}
       )
   elseif(SB_CONFIG_SECURE_BOOT_SIGNING_CUSTOM)
     set(custom_sign_cmd "${SB_CONFIG_SECURE_BOOT_SIGNING_COMMAND}")
@@ -260,6 +268,7 @@ function(b0_sign_image slot cpunet_target)
     ${PYTHON_EXECUTABLE}
     ${ZEPHYR_NRF_MODULE_DIR}/scripts/bootloader/validation_data.py
     --input ${to_sign} ${validation_signature_cmd}
+    --skip ${skip_size}
     --output-hex ${signed_hex}
     --output-bin ${signed_bin}
     --offset ${${slot}_validation_offset}
