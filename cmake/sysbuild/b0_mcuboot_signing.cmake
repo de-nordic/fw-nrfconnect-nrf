@@ -39,19 +39,14 @@ function(ncs_secure_boot_mcuboot_sign application bin_files signed_targets prefi
     dt_chosen(code_partition_path PROPERTY "zephyr,code-partition" TARGET ${application})
     dt_partition_size(slot_size PATH "${code_partition_path}" TARGET ${application} REQUIRED)
     dt_partition_addr(slot_address PATH "${code_partition_path}" TARGET ${application} REQUIRED)
-    # Header size is picked from the image that is being signed.
-    sysbuild_get(header_size IMAGE mcuboot VAR CONFIG_NCS_MCUBOOT_IMAGE_HEADER_SIZE KCONFIG)
+    # Because there is no need to align the header size to VTOR alignment requirements and the
+    # header will be discarded in the end, we can select the smalles possible size;
+    # 64 bytes is reasonable to cover actual header, which is actually smaller, and align size
+    # to 16 bytes, which is write block size of nNR54l.
+    set(header_size 0x40)
   endif()
 
-  if(SB_CONFIG_PARTITION_MANAGER)
-    set(pad_header --pad-header)
-  elseif("${prefix}" STREQUAL "CPUNET_")
-    set(pad_header --pad-header)
-  else()
-    set(pad_header)
-  endif()
-
-  set(imgtool_sign ${PYTHON_EXECUTABLE} ${IMGTOOL} sign --version ${SB_CONFIG_SECURE_BOOT_MCUBOOT_VERSION} --align 4 --slot-size ${slot_size} --header-size ${header_size} ${pad_header} --rom-fixed ${slot_address})
+  set(imgtool_sign ${PYTHON_EXECUTABLE} ${IMGTOOL} sign --version ${SB_CONFIG_SECURE_BOOT_MCUBOOT_VERSION} --align 4 --slot-size ${slot_size} --header-size ${header_size} --pad-header --rom-fixed ${slot_address})
 
   if(SB_CONFIG_MCUBOOT_HARDWARE_DOWNGRADE_PREVENTION)
     set(imgtool_extra --security-counter ${SB_CONFIG_MCUBOOT_HW_DOWNGRADE_PREVENTION_COUNTER_VALUE})
