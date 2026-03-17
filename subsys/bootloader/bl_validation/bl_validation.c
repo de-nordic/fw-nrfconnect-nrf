@@ -13,17 +13,12 @@
 
 LOG_MODULE_REGISTER(bl_validation, CONFIG_SECURE_BOOT_VALIDATION_LOG_LEVEL);
 
-/* Firmware image contains header, that precedes executable code;
+/* When Partition Manager is enabled the Firmware image may contain
+ * header that precedes executable code;
  * fw_info is placed within image at CONFIG_FW_INFO_OFFSET from the
  * beginning of executable code. This means that within firmware image
- * the fw_info is not placed at CONFIG_FW_INFO_OFFSET but at
- * CONFIG_FW_INFO_OFFSET + CONFIG_ROM_START_OFFSET, where
- * CONFIG_ROM_START_OFFSET is set for the firmware build.
- * The CONFIG_ROM_START_OFFSET of bootloader is not the same, so we
- * can not use it, and instead we use CONFIG_SB_IMAGE_BOOT_OFFSET,
- * which is supposed to be passed the same value as CONFIG_ROM_START_OFFSET
- * of firmware or Partition Manager padding, which is equivalent of
- * reserved header space.
+ * the fw_info is not placed at CONFIG_FW_INFO_OFFSET but after
+ * that extra header, when provided.
  */
 #if USE_PARTITION_MANAGER
 #include <pm_config.h>
@@ -35,11 +30,8 @@ LOG_MODULE_REGISTER(bl_validation, CONFIG_SECURE_BOOT_VALIDATION_LOG_LEVEL);
 #define FIRMWARE_HEADER_SKIP	0
 #endif
 #else
-#if CONFIG_MCUBOOT_MCUBOOT_IMAGE_NUMBER == -1
+/* Nothing to skip when Partition Manager not enabled */
 #define FIRMWARE_HEADER_SKIP	0
-#else
-#define FIRMWARE_HEADER_SKIP	CONFIG_SB_IMAGE_BOOT_OFFSET
-#endif
 #endif
 
 #ifdef CONFIG_SB_MONOTONIC_COUNTER_ROLLBACK_PROTECTION
