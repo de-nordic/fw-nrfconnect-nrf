@@ -118,23 +118,22 @@ function(provision application prefix_name)
       set(s1_arg --s1-addr ${s1_slot_address})
     endif()
 
+    # Need to configure where bl_storage is placed.
     if(CONFIG_SECURE_BOOT)
       if(cpunet_target)
-        # B0 is secure bootloader and we pick the address from its configuration.
-        dt_nodelabel(bl_storage_path NODELABEL bl_storage REQUIRED TARGET b0n)
-        dt_reg_addr(provision_address PATH "${bl_storage_path}" TARGET b0n)
-        dt_reg_size(provision_size PATH "${bl_storage_path}" TARGET b0n)
+        # CPUNET uses b0n variant of b0 bootloader.
+        set(bl_storage_target b0n)
       else()
-        dt_nodelabel(bl_storage_path NODELABEL bl_storage REQUIRED TARGET b0)
-        dt_reg_addr(provision_address PATH "${bl_storage_path}" TARGET b0)
-        dt_reg_size(provision_size PATH "${bl_storage_path}" TARGET b0)
+        set(bl_storage_target b0)
       endif()
     else(SB_CONFIG_MCUBOOT_HARDWARE_DOWNGRADE_PREVENTION)
-      # This is MCUboot downgrade prevention, so we pick the address from MCUboot config.
-      dt_nodelabel(bl_storage_path NODELABEL bl_storage REQUIRED TARGET mcuboot)
-      dt_reg_addr(provision_address PATH "${bl_storage_path}" TARGET mcuboot)
-      dt_reg_size(provision_size PATH "${bl_storage_path}" TARGET mcuboot)
+      # This is MCUboot downgrade prevention.
+      set(bl_storage_target mcuboot)
     endif()
+    # Pick partition address and size from the proper DTS of a processed targed.
+    dt_nodelabel(bl_storage_path NODELABEL bl_storage REQUIRED TARGET ${bl_storage_target})
+    dt_reg_addr(provision_address PATH "${bl_storage_path}" TARGET ${bl_storage_target})
+    dt_reg_size(provision_size PATH "${bl_storage_path}" TARGET ${bl_storage_target})
   endif()
 
   if(CONFIG_SECURE_BOOT)
