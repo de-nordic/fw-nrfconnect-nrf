@@ -40,7 +40,7 @@
 #define RWX_SKIP_SIZE		PM_MCUBOOT_PAD_SIZE
 #else
 #define RWX_PROTECTION_REGION	FIXED_PARTITION_SIZE(b0_partition)
-#define RWX_SKIP_SIZE		CONFIG_SB_DISABLE_SELF_RWX_SKIP_SIZE
+#define RWX_SKIP_SIZE		0
 #endif
 
 #include <zephyr/linker/linker-defs.h>

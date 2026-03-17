@@ -104,17 +104,6 @@ config SB_DISABLE_SELF_RWX
 	  Sets RRAMC's BOOTCONF region protection before jumping to application.
 	  It disables reads writes and execution memory area which holds NSIB.
 
-config SB_DISABLE_SELF_RWX_SKIP_SIZE
-	hex
-	depends on SB_DISABLE_SELF_RWX
-	depends on !PARTITION_MANAGER_ENABLED
-	default SB_IMAGE_BOOT_OFFSET
-	help
-	  Size of region, at the beginning of the partition, that does not require
-	  protections. This is used, for example, when MCUboot type image is protected
-	  but the header does not have to be. Allows to spare some protection bits.
-	  Note that when Partition Manager is enabled this value will be 0 and is useless.
-
 config SB_DISABLE_NEXT_W
 	bool "Disable writes for next stage"
 	depends on SB_DISABLE_SELF_RWX_SUPPORTED && !FPROTECT
