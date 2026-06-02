@@ -1,0 +1,51 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+&cpuapp_rram {
+	/delete-node/ partitions;
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		b0_partition: partition@0 {
+			compatible = "zephyr,mapped-partition";
+			reg = <0x0 DT_SIZE_K(30)>;
+		};
+
+		a_partition: partition@8000 {
+			compatible = "zephyr,mapped-partition";
+			reg = <0x8000 DT_SIZE_K(128)>;
+		};
+
+		b_partition: partition@28000 {
+			compatible = "zephyr,mapped-partition";
+			reg = <0x28000 DT_SIZE_K(128)>;
+		};
+
+		c_partition: partition@48000 {
+			compatible = "zephyr,mapped-partition";
+			reg = <0x48000 DT_SIZE_K(64)>;
+		};
+
+		d_partition: partition@58000 {
+			compatible = "zephyr,mapped-partition";
+			reg = <0x58000 DT_SIZE_K(64)>;
+		};
+	};
+};
+
+#if defined(TEST_WITH_MCUBOOT)
+s0_partition: &a_partition {};
+s1_partition: &b_partition {};
+slot0_partition: &c_partition {};
+slot1_partition: &d_partition {};
+#else
+s0_partition: &c_partition {};
+s1_partition: &d_partition {};
+#endif
+

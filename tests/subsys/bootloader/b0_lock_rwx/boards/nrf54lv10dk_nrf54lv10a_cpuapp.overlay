@@ -1,0 +1,10 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+#include <vendor/nordic/nrf54l05_cpuapp_partition.dtsi>
+
+/* nRF54LV10a has the same RWX protection capabilities as LM20 */
+#include "nrf54lm20dk_nrf54lm20a_cpuapp.overlay"
